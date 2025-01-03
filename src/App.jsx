@@ -5,13 +5,22 @@ import './App.css'
 
 function App() {
   const [count, setCount] = useState(0);
+  const [error, setError] = useState();
 
   useEffect(() => {
     const getAlbums = async () => {
-      const response = await fetch('https://itunes.apple.com/us/rss/topalbums/limit=100/json');
-      if (response.ok) {
+      setError(undefined);
+      try {
+        const response = await fetch('https://itunes.apple.com/us/rss/topalbums/limit=100/json');
+        if (!response.ok) {
+          throw new Error('Response not ok');
+        }
         const data = await response.json()
         console.log(data);
+      }
+      catch(e) {
+        setError('Sorry, there was an error getting the albums. Please try again later.');
+        console.error(`Error with fetching data: ${e}`);
       }
     }
     getAlbums();
@@ -19,26 +28,8 @@ function App() {
 
   return (
     <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
       <h1>iTunes Top 100 Albums</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
+      {error && <p>{error}</p>}
     </>
   )
 }
